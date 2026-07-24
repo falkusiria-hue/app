@@ -1,0 +1,9 @@
+your-repo/
+  app.py                    <- Home + Overview
+  pages/
+    1_Data_Upload.py        <- Upload Excel/CSV
+    2_Analysis.py           <- Deep filters + charts  
+    3_Comparison.py         <- Compare platforms/countries
+    4_Recommendations.py    <- AI insights
+  data/
+    sample_data.csv         <- Your real data
