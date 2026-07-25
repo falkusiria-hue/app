@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-st.set_page_config(page_title="Journalists' Trust in Social Media Platforms", layout="wide")
+st.set_page_config(page_title="Alternativ Media" Journalists' Trust in Social Media Platforms", layout="wide")
 st.title("Mapping Journalists' Trust in Social Media Platforms")
 st.write("A general analytical dashboard for media research and data visualization.")
 
