@@ -29,47 +29,65 @@ with col2:
 
 st.info("Insight: Journalists may use certain platforms heavily while trusting others more — a gap that can inspire new media solutions.")
 
+import streamlit as st
+import pandas as pd
+import plotly.express as px
 import io
 from fpdf import FPDF
 
-st.divider()
-st.subheader("Download Report")
+st.set_page_config(page_title="Journalists Trust Analyzer", layout="wide")
+st.title("📊 Journalists Trust & Social Media Analyzer")
 
-# 1. Prepare Excel file
-output = io.BytesIO()
-with pd.ExcelWriter(output, engine='openpyxl') as writer:
-    df.to_excel(writer, index=False, sheet_name='Trust Data')
-excel_data = output.getvalue()
+# 1. File Upload
+uploaded_file = st.file_uploader("Upload your Excel file here", type=["xlsx", "xls"])
 
-# 2. Prepare PDF file
-pdf = FPDF()
-pdf.add_page()
-pdf.set_font("Arial", size=14)
-pdf.cell(200, 10, txt="Journalists Trust Report", ln=True, align='C')
-pdf.ln(10)
-pdf.set_font("Arial", size=11)
+if uploaded_file is not None:
+    # Read the file
+    df = pd.read_excel(uploaded_file, engine='openpyxl')
+    
+    st.success("File uploaded successfully!")
+    st.dataframe(df)
 
-for i, row in df.iterrows():
-    line = f"{row['Platform']}: Trust = {row['Trust (%)']}% | Daily Usage = {row['Daily Usage (%)']}%"
-    pdf.cell(200, 10, txt=line, ln=True)
+    # 2. Plot the chart
+    st.subheader("Trust vs Daily Usage")
+    fig = px.scatter(df, 
+                     x="Trust (%)", 
+                     y="Daily Usage (%)", 
+                     size="Trust (%)", 
+                     color="Platform",
+                     hover_name="Platform",
+                     size_max=60)
+    st.plotly_chart(fig, use_container_width=True)
 
-pdf_output = pdf.output(dest='S').encode('latin1')
+    # 3. Download Buttons
+    st.divider()
+    st.subheader("Download Report")
 
-# 3. Show 2 buttons side by side
-col1, col2 = st.columns(2)
-with col1:
-    st.download_button(
-        label="📊 Download Excel",
-        data=excel_data,
-        file_name="Journalists_Trust_Report.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-with col2:
-    st.download_button(
-        label="📄 Download PDF",
-        data=pdf_output,
-        file_name="Journalists_Trust_Report.pdf",
-        mime="application/pdf"
-    )
+    # Excel
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Data')
+    excel_data = output.getvalue()
 
-st.caption("Tip: Right-click on any chart > 'Save image as' to download the chart as PNG")
+    # PDF
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=14)
+    pdf.cell(200, 10, txt="Journalists Trust Report", ln=True, align='C')
+    pdf.ln(10)
+    pdf.set_font("Arial", size=11)
+    for i, row in df.iterrows():
+        line = f"{row['Platform']}: Trust = {row['Trust (%)']}% | Usage = {row['Daily Usage (%)']}%"
+        pdf.cell(200, 10, txt=line, ln=True)
+    pdf_output = pdf.output(dest='S').encode('latin1')
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.download_button("📊 Download Excel", data=excel_data, file_name="Report.xlsx")
+    with col2:
+        st.download_button("📄 Download PDF", data=pdf_output, file_name="Report.pdf")
+
+else:
+    st.info("👆 Please upload an Excel file to start the analysis")
+
+st.caption("Note: Excel file must have columns: Platform, Trust (%), Daily Usage (%)")
