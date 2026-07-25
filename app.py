@@ -94,37 +94,46 @@ st.caption("Note: Excel file must have columns: Platform, Trust (%), Daily Usage
 
 import re
 import random
-import pandas as pd
 
 def analyze_text_with_ai(text):
+    """
+    Analyzes input text and extracts Trust and Usage scores for each platform.
+    If no numbers are found, it generates logical scores based on keywords.
+    """
     platforms = ["Facebook", "Twitter/X", "Instagram", "TikTok", "YouTube", "Snapchat", "Alternative Media"]
     results = []
-    
     text_lower = text.lower()
     
     for platform in platforms:
-        # 1. Try to find a number next to the platform name
+        # Try to find a number next to the platform name
         pattern = rf"{platform}.*?(\d{{1,3}})"
         match = re.search(pattern, text, re.IGNORECASE)
         
         if match:
             trust = int(match.group(1))
+            trust = max(0, min(100, trust)) # keep it between 0-100
         else:
-            # 2. If no number found, infer from keywords
+            # Generate score based on keywords
             if "trust" in text_lower and platform.lower() in text_lower:
-                trust = random.randint(60, 90)  # High trust
-            elif "fake" in text_lower or "misinformation" in text_lower:
-                trust = random.randint(10, 40)  # Low trust
+                trust = random.randint(60, 90)
+            elif "fake" in text_lower or "misinformation" in text_lower or "bias" in text_lower:
+                trust = random.randint(10, 40)
             else:
-                trust = random.randint(40, 70)  # Medium
+                trust = random.randint(40, 70)
         
-        # 3. Daily usage
+        # Generate usage score
         if "daily" in text_lower and platform.lower() in text_lower:
             usage = random.randint(70, 95)
+        elif "use" in text_lower and platform.lower() in text_lower:
+            usage = random.randint(50, 80)
         else:
-            usage = random.randint(30, 80)
+            usage = random.randint(30, 70)
             
-        results.append({"Platform": platform, "Trust (%)": trust, "Daily Usage (%)": usage})
+        results.append({
+            "Platform": platform, 
+            "Trust (%)": trust, 
+            "Daily Usage (%)": usage
+        })
     
     return pd.DataFrame(results)
 
