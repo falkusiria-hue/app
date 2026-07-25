@@ -92,65 +92,37 @@ else:
 
 st.caption("Note: Excel file must have columns: Platform, Trust (%), Daily Usage (%)")
 
-
-# ========== TAB 2: AI TEXT ANALYZER ==========
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+import io
 import re
 import random
+from fpdf import FPDF
 
-with tab2:
-    st.subheader("Write about political and economic situations")
-    text_input = st.text_area("📝 Write your analysis here:", height=200, placeholder="Example: Facebook trust 80 usage 90. Twitter trust 35.")
+# Dark theme
+st.set_page_config(page_title="Journalists Trust Analyzer", layout="wide")
+st.markdown("""
+<style>
+.stApp {background-color: #0E1117; color: white;}
+</style>
+""", unsafe_allow_html=True)
 
-    if st.button("🔍 Analyze with AI"):
-        if text_input:
-            data = []
-            platforms = ["Facebook", "Twitter/X", "Instagram", "TikTok", "YouTube", "Snapchat", "AI"]
-            text_lower = text_input.lower()
+st.title("📊 Journalists Trust Analyzer")
+st.write("Note: Excel file must have columns: Platform, Trust (%), Daily Usage (%)")
 
-            for platform in platforms:
-                # 1. Try to find number next to platform name
-                trust, usage = None, None
-                trust_match = re.search(rf"{platform}.*?trust.*?(\d{{1,3}})", text_input, re.IGNORECASE)
-                usage_match = re.search(rf"{platform}.*?usage.*?(\d{{1,3}})|{platform}.*?daily.*?(\d{{1,3}})", text_input, re.IGNORECASE)
-                
-                if trust_match: trust = int(trust_match.group(1))
-                if usage_match: usage = int(usage_match.group(1) or usage_match.group(2))
+tab1, tab2 = st.tabs(["📁 Upload Excel File", "🤖 AI Text Analyzer"])
 
-                # 2. If no number found, generate based on keywords
-                if trust is None:
-                    if "trust" in text_lower and platform.lower() in text_lower:
-                        trust = random.randint(65, 90)
-                    elif "fake" in text_lower or "lie" in text_lower or "misinformation" in text_lower:
-                        trust = random.randint(10, 40)
-                    else:
-                        trust = random.randint(45, 70)
-                
-                if usage is None:
-                    if "daily" in text_lower and platform.lower() in text_lower:
-                        usage = random.randint(70, 95)
-                    elif "use" in text_lower and platform.lower() in text_lower:
-                        usage = random.randint(50, 80)
-                    else:
-                        usage = random.randint(30, 65)
+# ========== FUNCTION FOR AI ==========
+def analyze_text_with_ai(text):
+    platforms = ["Facebook", "Twitter/X", "Instagram", "TikTok", "YouTube", "Snapchat", "AI"]
+    results = []
+    text_lower = text.lower()
 
-                data.append({
-                    "Platform": platform, 
-                    "Trust (%)": max(0, min(100, trust)), 
-                    "Daily Usage (%)": max(0, min(100, usage))
-                })
-            
-            df_ai = pd.DataFrame(data)
-            st.success("Analysis Complete!")
-            st.dataframe(df_ai, use_container_width=True)
-
-            col1, col2 = st.columns(2)
-            with col1:
-                fig_bar2 = px.bar(df_ai, x="Platform", y="Trust (%)", color="Platform")
-                fig_bar2.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font_color="white")
-                st.plotly_chart(fig_bar2, use_container_width=True)
-            with col2:
-                fig_scatter2 = px.scatter(df_ai, x="Daily Usage (%)", y="Trust (%)", size="Trust (%)", color="Platform", hover_name="Platform")
-                fig_scatter2.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font_color="white")
-                st.plotly_chart(fig_scatter2, use_container_width=True)
-        else:
-            st.warning("Please write some text")
+    for platform in platforms:
+        trust, usage = None, None
+        
+        # 1. Try to find numbers in text like "Facebook trust 80 usage 90"
+        trust_match = re.search(rf"{platform}.*?trust.*?(\d{{1,3}})", text, re.IGNORECASE)
+        usage_match = re.search(rf"{platform}.*?usage.*?(\d{{1,3}})|{platform}.*?daily.*?
