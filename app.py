@@ -8,9 +8,9 @@ st.write("A general analytical dashboard for media research and data visualizati
 
 # Sample general data (you can replace it with real study results)
 data = {
-    "Platform": ["Facebook", "Twitter/X", "Instagram", "TikTok", "YouTube"],
-    "Trust (%)": [25, 68, 40, 15, 55],
-    "Daily Usage (%)": [85, 72, 60, 45, 70]
+    "Platform": ["Facebook", "Twitter/X", "Instagram", "TikTok", "YouTube", "Snapchat", "AI"],
+    "Trust (%)": [25, 68, 40, 15, 55, 45, 60],
+    "Daily Usage (%)": [85, 72, 60, 45, 70, 55, 50]
 }
 df = pd.DataFrame(data)
 
