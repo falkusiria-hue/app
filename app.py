@@ -8,6 +8,14 @@ st.sidebar.title("Filters")
 platform = st.sidebar.multiselect("Select Platforms", ["Facebook", "Twitter/X", "Instagram"])
 
 
+st.title("📊 Journalists Trust Analyzer")
+
+tab1, tab2 = st.tabs(["Trust Analysis", "Daily Usage"])
+with tab1:
+    st.write("Your charts here")
+
+
+
 import streamlit as st
 import pandas as pd
 import plotly.express as px
