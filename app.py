@@ -3,6 +3,11 @@ import pandas as pd
 
 st.set_page_config(page_title="Journalists Trust Analyzer", layout="wide")
 
+
+st.sidebar.title("Filters")
+platform = st.sidebar.multiselect("Select Platforms", ["Facebook", "Twitter/X", "Instagram"])
+
+
 import streamlit as st
 import pandas as pd
 import plotly.express as px
