@@ -15,6 +15,9 @@ with tab1:
     st.write("Your charts here")
 
 
+st.divider()
+st.caption("Data Source: Alternative Media Mapping 2025")
+
 
 import streamlit as st
 import pandas as pd
